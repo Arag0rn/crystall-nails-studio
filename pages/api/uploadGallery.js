@@ -3,7 +3,7 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import dbConnect from '../../utils/dbConnect';
-import GalleryImage from '@/models/GalleryImage';
+import GalleryImage from '../../models/GalleryImage';
 
 const uploadDir = './public/uploads/gallery';
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });

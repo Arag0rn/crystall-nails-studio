@@ -1,5 +1,5 @@
 import dbConnect from '../../utils/dbConnect';
-import Map from '@/models/map';
+import Map from '../../models/map';
 
 export default async function handler(req, res) {
   await dbConnect();
