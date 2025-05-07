@@ -1,0 +1,223 @@
+'use client';
+
+import { useEffect, useState, useRef } from 'react';
+import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+} from '@hello-pangea/dnd';
+
+export default function AdminProposPage() {
+  const [sections, setSections] = useState([]);
+  const [headline, setHeadline] = useState('');
+  const [subtext, setSubtext] = useState('');
+  const [file, setFile] = useState(null);
+  const [preview, setPreview] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const fileInputRef = useRef(null); // <- добавлено
+
+  useEffect(() => {
+    fetch('/api/ourPropos')
+      .then((res) => res.json())
+      .then((data) => {
+        const propos = data.propos;
+        if (propos && propos.items?.length > 0) {
+          setSections(propos.items);
+        }
+      });
+  }, []);
+
+  const handleUpload = async () => {
+    if (!file) return;
+
+    setLoading(true);
+    try {
+      const createRes = await fetch('/api/ourPropos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ headline, subtext }),
+      });
+
+      const createData = await createRes.json();
+
+      if (createRes.ok && createData.propos?.items?.length > 0) {
+        const newSection = createData.propos.items.at(-1);
+        const newSectionId = newSection._id;
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const imageRes = await fetch(`/api/uploadOurProposImage?id=${newSectionId}`, {
+          method: 'POST',
+          body: formData,
+        });
+
+        const imageData = await imageRes.json();
+        const imageUrl = imageData.url;
+
+        const updateRes = await fetch('/api/ourPropos', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: newSectionId, backgroundImage: imageUrl }),
+        });
+
+        if (updateRes.ok) {
+          setSections((prev) => [...prev, { ...newSection, backgroundImage: imageUrl }]);
+          setHeadline('');
+          setSubtext('');
+          setFile(null);
+          setPreview(null);
+
+          // очищаем file input
+          if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Ошибка загрузки:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (index) => {
+    const id = sections[index]._id;
+    const res = await fetch(`/api/ourPropos?id=${id}`, { method: 'DELETE' });
+    if (res.ok) {
+      setSections((prev) => prev.filter((section) => section._id !== id));
+    }
+  };
+
+  const handleEdit = async (index, newHeadline, newSubtext) => {
+    const section = sections[index];
+    const res = await fetch('/api/ourPropos', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: section._id,
+        headline: newHeadline,
+        subtext: newSubtext,
+      }),
+    });
+
+    if (res.ok) {
+      setSections((prev) =>
+        prev.map((s, i) =>
+          i === index ? { ...s, headline: newHeadline, subtext: newSubtext } : s
+        )
+      );
+    }
+  };
+
+  const handleDragEnd = async (result) => {
+    if (!result.destination) return;
+    const items = Array.from(sections);
+    const [moved] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, moved);
+
+    setSections(items);
+
+    await fetch('/api/reorder', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ order: items.map((item) => item._id) }),
+    });
+  };
+
+  return (
+    <div className="max-w-2xl mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Редактировать секцию OurPropos</h1>
+
+      <div className="space-y-4">
+        <input
+          type="text"
+          value={headline}
+          onChange={(e) => setHeadline(e.target.value)}
+          placeholder="Заголовок"
+          className="w-full p-2 border rounded"
+        />
+        <textarea
+          value={subtext}
+          onChange={(e) => setSubtext(e.target.value)}
+          placeholder="Подтекст"
+          className="w-full p-2 border rounded"
+          rows={3}
+        />
+        <input
+          type="file"
+          accept="image/*"
+          ref={fileInputRef} // <- вот он
+          onChange={(e) => {
+            const selected = e.target.files?.[0];
+            setFile(selected);
+            setPreview(selected ? URL.createObjectURL(selected) : null);
+          }}
+        />
+        {preview && (
+          <img src={preview} alt="Preview" className="mt-2 max-h-60 border" />
+        )}
+        <button
+          type="button"
+          onClick={handleUpload}
+          disabled={loading}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        >
+          {loading ? 'Загрузка...' : 'Добавить секцию'}
+        </button>
+      </div>
+
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <Droppable droppableId="sections">
+          {(provided) => (
+            <div ref={provided.innerRef} {...provided.droppableProps} className="mt-8 space-y-4">
+              {sections.map((section, index) => (
+                <Draggable key={section._id} draggableId={section._id} index={index}>
+                  {(provided) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                      className="p-4 border rounded bg-blue-700 text-white"
+                    >
+                      <input
+                        type="text"
+                        value={section.headline}
+                        onChange={(e) =>
+                          handleEdit(index, e.target.value, section.subtext)
+                        }
+                        className="font-semibold text-lg w-full bg-transparent border-b border-white focus:outline-none"
+                      />
+                      <textarea
+                        value={section.subtext}
+                        onChange={(e) =>
+                          handleEdit(index, section.headline, e.target.value)
+                        }
+                        className="text-sm w-full mt-1 bg-transparent border-b border-white focus:outline-none"
+                        rows={3}
+                      />
+                      {section.backgroundImage && (
+                        <img
+                          src={section.backgroundImage}
+                          alt="Секция"
+                          className="mt-2 border max-h-60"
+                        />
+                      )}
+                      <button
+                        onClick={() => handleDelete(index)}
+                        className="mt-2 bg-red-600 text-white px-2 py-1 rounded"
+                      >
+                        Удалить
+                      </button>
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
+    </div>
+  );
+}
