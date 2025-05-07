@@ -1,5 +1,5 @@
 import dbConnect from '../../utils/dbConnect';
-import Discount from '@/models/discount';
+import Discount from '../../models/discount';
 
 export default async function handler(req, res) {
   await dbConnect();

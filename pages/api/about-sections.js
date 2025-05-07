@@ -1,5 +1,5 @@
 import dbConnect from '../../utils/dbConnect';
-import AboutSection from '@/models/aboutSection';
+import AboutSection from '../../models/aboutSection';
 
 export default async function handler(req, res) {
   await dbConnect();

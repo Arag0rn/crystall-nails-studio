@@ -1,5 +1,5 @@
 import dbConnect from '../../utils/dbConnect';
-import GalleryImage from '@/models/GalleryImage';
+import GalleryImage from '../../models/GalleryImage';
 import fs from 'fs';
 import path from 'path';
 
