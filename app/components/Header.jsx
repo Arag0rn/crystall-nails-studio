@@ -30,7 +30,7 @@ export default function Header() {
   };
 
   return (
-    <header className="relative z-50 p-4 flex justify-between items-center h-auto md:h-30 bg-[#96938b] md:bg-transparent">
+    <header className="relative z-50 p-4 flex justify-between items-center h-auto md:h-30 ">
       <div className="container mx-auto flex justify-between items-center">
         {/* Logo */}
         <div className="flex items-center">
@@ -97,7 +97,7 @@ export default function Header() {
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 w-full bg-[#96938b] shadow-md rounded-b-md py-4">
+        <div className="md:hidden absolute top-full left-0 w-full rounded-b-md py-4 bg-[#b1777f]">
           <nav className="flex flex-col items-center space-y-2 text-white">
             {navigationArray.map((item, idx) => (
               <a
