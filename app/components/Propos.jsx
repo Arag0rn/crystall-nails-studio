@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import ProposSection from './ProposSection'; // Проверь путь к компоненту!
+import ProposSliderSection from './ProposSection'; // Убедись, что путь корректный
 
 export default function OurProposPage() {
   const [sections, setSections] = useState([]);
@@ -21,16 +21,7 @@ export default function OurProposPage() {
   return (
     <section className="container mx-auto p-4">
       <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4">Unsere Angebote</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8" >
-      {sections.map((section) => (
-        <ProposSection
-          key={section._id}
-          backgroundImage={section.backgroundImage}
-          headline={section.headline}
-          subtext={section.subtext}
-        />
-      ))}
-      </div>
+      <ProposSliderSection items={sections} />
     </section>
   );
 }
