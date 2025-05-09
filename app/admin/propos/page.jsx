@@ -14,7 +14,8 @@ export default function AdminProposPage() {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
-  const fileInputRef = useRef(null); // <- добавлено
+  const fileInputRef = useRef(null); 
+  const [price, setPrice] = useState('');
 
   useEffect(() => {
     fetch('/api/ourPropos')
@@ -35,7 +36,7 @@ export default function AdminProposPage() {
       const createRes = await fetch('/api/ourPropos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ headline, subtext }),
+        body: JSON.stringify({ headline, subtext, price }),
       });
 
       const createData = await createRes.json();
@@ -65,6 +66,7 @@ export default function AdminProposPage() {
           setSections((prev) => [...prev, { ...newSection, backgroundImage: imageUrl }]);
           setHeadline('');
           setSubtext('');
+          setPrice('');
           setFile(null);
           setPreview(null);
 
@@ -89,7 +91,7 @@ export default function AdminProposPage() {
     }
   };
 
-  const handleEdit = async (index, newHeadline, newSubtext) => {
+  const handleEdit = async (index, newHeadline, newPrice, newSubtext) => {
     const section = sections[index];
     const res = await fetch('/api/ourPropos', {
       method: 'PUT',
@@ -98,13 +100,17 @@ export default function AdminProposPage() {
         id: section._id,
         headline: newHeadline,
         subtext: newSubtext,
+        backgroundImage: section.backgroundImage,
+        price: newPrice || '',
       }),
     });
-
+  
     if (res.ok) {
       setSections((prev) =>
         prev.map((s, i) =>
-          i === index ? { ...s, headline: newHeadline, subtext: newSubtext } : s
+          i === index
+            ? { ...s, headline: newHeadline, subtext: newSubtext, price: newPrice }
+            : s
         )
       );
     }
@@ -137,6 +143,13 @@ export default function AdminProposPage() {
           placeholder="Заголовок"
           className="w-full p-2 border rounded"
         />
+            <input
+          type="text"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+          placeholder="Цена"
+          className="w-full p-2 border rounded"
+        />
         <textarea
           value={subtext}
           onChange={(e) => setSubtext(e.target.value)}
@@ -147,7 +160,7 @@ export default function AdminProposPage() {
         <input
           type="file"
           accept="image/*"
-          ref={fileInputRef} // <- вот он
+          ref={fileInputRef} 
           onChange={(e) => {
             const selected = e.target.files?.[0];
             setFile(selected);
@@ -184,14 +197,22 @@ export default function AdminProposPage() {
                         type="text"
                         value={section.headline}
                         onChange={(e) =>
-                          handleEdit(index, e.target.value, section.subtext)
+                          handleEdit(index, e.target.value, section.price, section.subtext)
+                        }
+                        className="font-semibold text-lg w-full bg-transparent border-b border-white focus:outline-none"
+                      />
+                          <input
+                        type="text"
+                        value={section.price}
+                        onChange={(e) =>
+                          handleEdit(index, section.headline, e.target.value, section.subtext)
                         }
                         className="font-semibold text-lg w-full bg-transparent border-b border-white focus:outline-none"
                       />
                       <textarea
                         value={section.subtext}
                         onChange={(e) =>
-                          handleEdit(index, section.headline, e.target.value)
+                          handleEdit(index, section.headline, section.price, e.target.value)
                         }
                         className="text-sm w-full mt-1 bg-transparent border-b border-white focus:outline-none"
                         rows={3}

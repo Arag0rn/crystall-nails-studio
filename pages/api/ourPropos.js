@@ -7,14 +7,16 @@ export default async function handler(req, res) {
   await dbConnect();
 
   if (req.method === 'POST') {
-    const { headline, subtext, backgroundImage = '' } = req.body;
-    const newItem = { headline, subtext, backgroundImage };
+    const { headline, subtext, backgroundImage = '', price } = req.body;
+    const newItem = { headline, subtext, backgroundImage, price };
+    console.log('New item:', newItem);
 
     let doc = await OurPropos.findOne();
     if (!doc) {
       doc = await OurPropos.create({ items: [newItem] });
     } else {
       doc.items.push(newItem);
+      console.log('doc.items', doc.items);
       await doc.save();
     }
 
@@ -22,7 +24,7 @@ export default async function handler(req, res) {
   }
 
   else if (req.method === 'PUT') {
-    const { id, headline, subtext, backgroundImage } = req.body;
+    const { id, headline, subtext, backgroundImage, price } = req.body;
 
     const doc = await OurPropos.findOne();
     if (!doc) return res.status(404).json({ error: 'Документ не найден' });
@@ -33,6 +35,7 @@ export default async function handler(req, res) {
     if (headline !== undefined) item.headline = headline;
     if (subtext !== undefined) item.subtext = subtext;
     if (backgroundImage !== undefined) item.backgroundImage = backgroundImage;
+    if (price !== undefined) item.price = price;
 
     await doc.save();
     res.status(200).json({ propos: doc });
