@@ -1,14 +1,23 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useLoading } from '../contex/LoadingContext';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faInstagram, faTiktok } from '@fortawesome/free-brands-svg-icons';
+import '@fortawesome/fontawesome-svg-core/styles.css'; // Важно для стилей Font Awesome
+import { config } from '@fortawesome/fontawesome-svg-core';
+config.autoAddCss = false; // Отключаем автоматическое добавление CSS, чтобы избежать конфликтов
 
 export default function Footer() {
   const [footer, setFooter] = useState(null);
+  const { setLoading } = useLoading();
 
   useEffect(() => {
+    setLoading(true);
     fetch('/api/footer')
       .then((res) => res.json())
-      .then((data) => setFooter(data.footer));
+      .then((data) => setFooter(data.footer))
+      .finally(() => setLoading(false));
   }, []);
 
   if (!footer) {
@@ -17,7 +26,7 @@ export default function Footer() {
   const social = footer.social || {};
 
   return (
-    <footer className=" text-white py-8">
+    <footer className="text-white py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 container">
         {/* Логотип */}
         {footer.logoUrl && (
@@ -52,16 +61,16 @@ export default function Footer() {
           </div>
         )}
 
-        {/* Социальные сети */}
+        {/* Социальные сети с иконками */}
         <div className="flex justify-center space-x-6">
           {social.instagram && (
             <a
               href={social.instagram}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm text-pink-500 hover:underline"
+              className="text-pink-500 hover:opacity-75"
             >
-              Instagram
+              <FontAwesomeIcon icon={faInstagram} size="lg" />
             </a>
           )}
           {social.tiktok && (
@@ -69,11 +78,12 @@ export default function Footer() {
               href={social.tiktok}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm text-black hover:underline"
+              className="text-black hover:opacity-75"
             >
-              TikTok
+              <FontAwesomeIcon icon={faTiktok} size="lg" />
             </a>
           )}
+          {/* Добавь другие социальные сети по аналогии */}
         </div>
       </div>
     </footer>

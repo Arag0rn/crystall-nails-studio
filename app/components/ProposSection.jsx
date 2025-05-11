@@ -49,7 +49,7 @@ const ProposSliderSection = ({ items = [] }) => {
         {items.map((item, index) => (
           <SwiperSlide key={item._id || index} className="!h-auto">
             <div className="group relative overflow-hidden rounded-lg border-1 border-gray-[#B8860B]">
-              <div className="absolute top-5 right-5 bg-amber-100">{item.price}&euro;</div>
+              <div className="absolute px-2 rounded-3xl font-semibold top-5 right-5 bg-amber-100">{item.price} &euro;</div>
               <img
                 src={item.backgroundImage}
                 alt={item.headline}

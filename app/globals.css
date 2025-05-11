@@ -3,6 +3,8 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --font-montserrat: 'Montserrat', sans-serif;
+  --font-playfair: 'Playfair Display', serif;
 }
 
 @theme inline {
@@ -22,5 +24,18 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family:var(--font-playfair), Arial, Helvetica, sans-serif;
+}
+
+body {
+  font-family: var(--font-allura);
+}
+
+p, input, textarea, select {
+  font-family: 'Playwrite Danmark Loopet';
+  font-weight: 400;
+}
+
+h1, h2, h3, .elegant-text {
+  font-family: var(--font-playfair);
 }

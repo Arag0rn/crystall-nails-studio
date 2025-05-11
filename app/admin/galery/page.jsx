@@ -1,16 +1,21 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
+import { useLoading } from '../../contex/LoadingContext';
 
 export default function AdminGalleryPage() {
   const [images, setImages] = useState([]);
   const [file, setFile] = useState(null);
   const fileRef = useRef();
+  const { setLoading } = useLoading();
+
+  
 
   useEffect(() => {
     fetch('/api/gallery')
       .then((res) => res.json())
-      .then(setImages);
+      .then(setImages)
+      .finally(() => setLoading(false));
   }, []);
 
   const handleUpload = async () => {

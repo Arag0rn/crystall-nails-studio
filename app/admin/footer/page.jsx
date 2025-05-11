@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
+import { useLoading } from '../../contex/LoadingContext';
+
+
 
 export default function AdminFooterSettings() {
     const [data, setData] = useState({
@@ -9,6 +12,7 @@ export default function AdminFooterSettings() {
         social: {} 
       });
   const [logoPreview, setLogoPreview] = useState('');
+    const { setLoading } = useLoading();
 
   useEffect(() => {
     fetch('/api/footer')
@@ -22,8 +26,9 @@ export default function AdminFooterSettings() {
             ...res.footer?.social
           },
         }));
-        setLogoPreview(res.footer?.logoUrl || ''); 
-      });
+        setLogoPreview(res.footer?.logoUrl || '')
+      })
+      .finally(() => setLoading(false))
   }, []);
 
   const updateField = (field, value) => {

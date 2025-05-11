@@ -75,7 +75,7 @@ export default function Header() {
             <a
               key={idx}
               href={item.href}
-              className="hover:bg-[#B8860B] py-2 px-4 rounded-md transition duration-300"
+              className="hover:bg-[#B8860B] py-2 px-4 rounded-md transition duration-300 text-2xl"
             >
               {item.label}
             </a>
@@ -88,7 +88,7 @@ export default function Header() {
             href={header.bookingLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition duration-300"
+            className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition duration-300 font-[--font-playfair]"
           >
             WhatsApp
           </a>
@@ -104,7 +104,7 @@ export default function Header() {
                 key={idx}
                 href={item.href}
                 className="block py-2 px-4 hover:bg-[#B8860B] rounded-md transition duration-300 w-full text-center"
-                onClick={toggleMobileMenu} // Close menu on click
+                onClick={toggleMobileMenu} 
               >
                 {item.label}
               </a>

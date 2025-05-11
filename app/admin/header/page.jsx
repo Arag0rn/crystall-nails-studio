@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useLoading } from '../../contex/LoadingContext';
 
 export default function AdminHeaderPage() {
   const [form, setForm] = useState({
@@ -12,6 +13,7 @@ export default function AdminHeaderPage() {
     navigation6: '',
     bookingLink: ''
   });
+  const { setLoading } = useLoading();
 
   useEffect(() => {
     const fetchHeader = async () => {
@@ -31,7 +33,8 @@ export default function AdminHeaderPage() {
       }
     };
 
-    fetchHeader();
+    fetchHeader()
+    .finally(() => setLoading(false));
   }, []);
 
   const handleChange = (e) => {

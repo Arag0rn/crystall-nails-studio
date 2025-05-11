@@ -1,5 +1,6 @@
 'use client';
 
+import { useLoading } from '../../contex/LoadingContext';
 import { useEffect, useState } from 'react';
 
 export default function AdminDiscount() {
@@ -7,7 +8,8 @@ export default function AdminDiscount() {
   const [reason, setReason] = useState('Ersten Besuch');
   const [amount, setAmount] = useState('10%');
   const [description, setDescription] = useState('');
-  const [loading, setLoading] = useState(false);
+
+    const { setLoading } = useLoading();
 
   useEffect(() => {
     fetch('/api/discount')
@@ -20,12 +22,13 @@ export default function AdminDiscount() {
           setAmount(d.amount);
           setDescription(d.description);
         }
-      });
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+
 
     await fetch('/api/discount', {
       method: 'POST',
@@ -33,7 +36,6 @@ export default function AdminDiscount() {
       body: JSON.stringify({ enabled, reason, amount, description }),
     });
 
-    setLoading(false);
     alert('Секция скидки обновлена!');
   };
 
@@ -75,10 +77,9 @@ export default function AdminDiscount() {
 
       <button
         type="submit"
-        disabled={loading}
         className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
       >
-        {loading ? 'Сохраняем...' : '💾Сохранить'}
+        { '💾Сохранить'}
       </button>
     </form>
   );

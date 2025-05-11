@@ -2,23 +2,37 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import { useLoading } from '../../contex/LoadingContext';
+
 
 export default function AdminAboutSection() {
   const [sections, setSections] = useState([]);
+    const { setLoading } = useLoading();
 
   useEffect(() => {
     fetch('/api/about-sections')
       .then((res) => res.json())
-      .then((data) => setSections(data.sections));
+      .then((data) => setSections(data.sections))
+      .finally(() => setLoading(false));
   }, []);
 
   const handleSave = async (index) => {
     const sec = sections[index];
-    const method = sec._id ? 'PUT' : 'POST';
+    const method = sec._id ? 'PATCH' : 'POST';
+  
+    const body = {
+      id: sec._id, 
+      title: sec.title,
+      content: sec.content,
+      imageUrls: sec.imageUrls,
+      cta: sec.cta,
+      order: index + 1, 
+    };
+  
     await fetch('/api/about-sections', {
       method,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(sec),
+      body: JSON.stringify(body),
     });
   };
 

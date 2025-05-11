@@ -1,11 +1,19 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useLoading } from '../contex/LoadingContext';
+
 
 export default function AdminLoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
+  const { setLoading } = useLoading();
+
+  useEffect(() => {
+ 
+    setLoading(false);
+  }, [setLoading]);
 
   const handleLogin = async (e) => {
     e.preventDefault();

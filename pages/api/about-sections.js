@@ -15,7 +15,7 @@ export default async function handler(req, res) {
     return res.status(201).json({ section });
   }
 
-  if (req.method === 'PUT') {
+  if (req.method === 'PATCH') {
     const { id, title, content, imageUrls, cta, order } = req.body;
     const section = await AboutSection.findByIdAndUpdate(
       id,

@@ -1,27 +1,41 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useLoading } from '../../contex/LoadingContext';
 
 export default function AdminMapSection() {
   const [address, setAddress] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const { setLoading } = useLoading(); 
 
   useEffect(() => {
+    setLoading(true);
     fetch('/api/map')
       .then((res) => res.json())
-      .then((data) => setAddress(data.address));
-  }, []);
+      .then((data) => setAddress(data.address || ''))
+      .catch((err) => {
+        console.error('Ошибка при загрузке адреса:', err);
+      })
+      .finally(() => setLoading(false));
+  }, [setLoading]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    await fetch('/api/map', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ address }),
-    });
-    setLoading(false);
-    alert('Адрес обновлён!');
+    setIsSaving(true);
+
+    try {
+      await fetch('/api/map', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ address }),
+      });
+      alert('Адрес обновлён!');
+    } catch (err) {
+      console.error('Ошибка при сохранении:', err);
+      alert('Не удалось обновить адрес.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -36,10 +50,10 @@ export default function AdminMapSection() {
       />
       <button
         type="submit"
-        disabled={loading}
+        disabled={isSaving}
         className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
       >
-        {loading ? 'Сохраняем...' : '💾Сохранить'}
+        {isSaving ? 'Сохраняем...' : '💾 Сохранить'}
       </button>
     </form>
   );

@@ -6,32 +6,37 @@ import {
   Droppable,
   Draggable,
 } from '@hello-pangea/dnd';
+import { useLoading } from '../../contex/LoadingContext';
 
 export default function AdminProposPage() {
   const [sections, setSections] = useState([]);
   const [headline, setHeadline] = useState('');
   const [subtext, setSubtext] = useState('');
+  const [price, setPrice] = useState('');
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const fileInputRef = useRef(null); 
-  const [price, setPrice] = useState('');
+  const [isUploading, setIsUploading] = useState(false); // локальный загрузчик только для кнопки
+  const fileInputRef = useRef(null);
+
+  const { setLoading } = useLoading(); // глобальный лоадер
 
   useEffect(() => {
+    setLoading(true);
     fetch('/api/ourPropos')
       .then((res) => res.json())
       .then((data) => {
         const propos = data.propos;
-        if (propos && propos.items?.length > 0) {
+        if (propos?.items?.length > 0) {
           setSections(propos.items);
         }
-      });
-  }, []);
+      })
+      .catch((err) => console.error('Ошибка загрузки секций:', err))
+      .finally(() => setLoading(false));
+  }, [setLoading]);
 
   const handleUpload = async () => {
     if (!file) return;
-
-    setLoading(true);
+    setIsUploading(true);
     try {
       const createRes = await fetch('/api/ourPropos', {
         method: 'POST',
@@ -40,46 +45,37 @@ export default function AdminProposPage() {
       });
 
       const createData = await createRes.json();
+      if (!createRes.ok || !createData.propos?.items?.length) throw new Error('Ошибка создания');
 
-      if (createRes.ok && createData.propos?.items?.length > 0) {
-        const newSection = createData.propos.items.at(-1);
-        const newSectionId = newSection._id;
+      const newSection = createData.propos.items.at(-1);
+      const formData = new FormData();
+      formData.append('file', file);
 
-        const formData = new FormData();
-        formData.append('file', file);
+      const imageRes = await fetch(`/api/uploadOurProposImage?id=${newSection._id}`, {
+        method: 'POST',
+        body: formData,
+      });
 
-        const imageRes = await fetch(`/api/uploadOurProposImage?id=${newSectionId}`, {
-          method: 'POST',
-          body: formData,
-        });
+      const imageData = await imageRes.json();
+      const imageUrl = imageData.url;
 
-        const imageData = await imageRes.json();
-        const imageUrl = imageData.url;
+      await fetch('/api/ourPropos', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: newSection._id, backgroundImage: imageUrl }),
+      });
 
-        const updateRes = await fetch('/api/ourPropos', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: newSectionId, backgroundImage: imageUrl }),
-        });
-
-        if (updateRes.ok) {
-          setSections((prev) => [...prev, { ...newSection, backgroundImage: imageUrl }]);
-          setHeadline('');
-          setSubtext('');
-          setPrice('');
-          setFile(null);
-          setPreview(null);
-
-          // очищаем file input
-          if (fileInputRef.current) {
-            fileInputRef.current.value = '';
-          }
-        }
-      }
+      setSections((prev) => [...prev, { ...newSection, backgroundImage: imageUrl }]);
+      setHeadline('');
+      setSubtext('');
+      setPrice('');
+      setFile(null);
+      setPreview(null);
+      if (fileInputRef.current) fileInputRef.current.value = '';
     } catch (err) {
-      console.error('Ошибка загрузки:', err);
+      console.error('Ошибка при добавлении секции:', err);
     } finally {
-      setLoading(false);
+      setIsUploading(false);
     }
   };
 
@@ -87,7 +83,7 @@ export default function AdminProposPage() {
     const id = sections[index]._id;
     const res = await fetch(`/api/ourPropos?id=${id}`, { method: 'DELETE' });
     if (res.ok) {
-      setSections((prev) => prev.filter((section) => section._id !== id));
+      setSections((prev) => prev.filter((s) => s._id !== id));
     }
   };
 
@@ -104,13 +100,11 @@ export default function AdminProposPage() {
         price: newPrice || '',
       }),
     });
-  
+
     if (res.ok) {
       setSections((prev) =>
         prev.map((s, i) =>
-          i === index
-            ? { ...s, headline: newHeadline, subtext: newSubtext, price: newPrice }
-            : s
+          i === index ? { ...s, headline: newHeadline, subtext: newSubtext, price: newPrice } : s
         )
       );
     }
@@ -143,7 +137,7 @@ export default function AdminProposPage() {
           placeholder="Заголовок"
           className="w-full p-2 border rounded"
         />
-            <input
+        <input
           type="text"
           value={price}
           onChange={(e) => setPrice(e.target.value)}
@@ -160,23 +154,22 @@ export default function AdminProposPage() {
         <input
           type="file"
           accept="image/*"
-          ref={fileInputRef} 
+          ref={fileInputRef}
           onChange={(e) => {
             const selected = e.target.files?.[0];
             setFile(selected);
             setPreview(selected ? URL.createObjectURL(selected) : null);
           }}
         />
-        {preview && (
-          <img src={preview} alt="Preview" className="mt-2 max-h-60 border" />
-        )}
+        {preview && <img src={preview} alt="Preview" className="mt-2 max-h-60 border" />}
+
         <button
           type="button"
           onClick={handleUpload}
-          disabled={loading}
+          disabled={isUploading}
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
         >
-          {loading ? 'Загрузка...' : 'Добавить секцию'}
+          {isUploading ? 'Загрузка...' : 'Добавить секцию'}
         </button>
       </div>
 
@@ -201,7 +194,7 @@ export default function AdminProposPage() {
                         }
                         className="font-semibold text-lg w-full bg-transparent border-b border-white focus:outline-none"
                       />
-                          <input
+                      <input
                         type="text"
                         value={section.price}
                         onChange={(e) =>
