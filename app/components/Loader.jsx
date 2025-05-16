@@ -2,7 +2,7 @@
 
 export default function NailLoader() {
   return (
-    <div className="w-full flex items-center justify-center h-screen bg-pink-100">
+    <div className="w-full flex items-center justify-center h-screen bg-[#e7e1d1]">
       <div className="flex flex-col items-center animate-pulse">
         <img
           src="/loader.png" 

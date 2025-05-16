@@ -16,7 +16,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #F5F5DC      ;  /*#898888*/
+    --background: #e7e1d1      ;  /*#898888*/
     --foreground: #B8860B;
   }
 }
@@ -38,4 +38,12 @@ p, input, textarea, select {
 
 h1, h2, h3, .elegant-text {
   font-family: var(--font-playfair);
+}
+
+aside, aside a {
+  font-family: var(--font-montserrat);
+}
+
+footer {
+  background: linear-gradient(to bottom, transparent, #000000);
 }

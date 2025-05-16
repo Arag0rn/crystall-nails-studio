@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import LogoWrapper from './LogoWrapper'; 
 
 export default function Header() {
   const [header, setHeader] = useState(null);
@@ -30,21 +31,19 @@ export default function Header() {
   };
 
   return (
-    <header className="relative z-50 p-4 flex justify-between items-center h-auto md:h-30 ">
+    <header className="relative z-50 p-4 flex justify-between items-center h-auto ">
       <div className="container mx-auto flex justify-between items-center">
         {/* Logo */}
-        <div className="flex items-center">
-          <img src="logo2.png" alt="Logo" className="w-32 h-auto md:w-50 md:h-40" />
-        </div>
+ <LogoWrapper logoUrl="crystal.logo.png" />
 
         {/* Mobile Menu Button */}
         <button
           onClick={toggleMobileMenu}
-          className="md:hidden text-white focus:outline-none"
+          className="md:hidden text-white focus:outline-none w-[70px] h-[auto]"
         >
           {isMobileMenuOpen ? (
             <svg
-              className="h-6 w-6 fill-current"
+              className="fill-current w-full h-full"
               viewBox="0 0 24 24"
             >
               <path
@@ -55,7 +54,7 @@ export default function Header() {
             </svg>
           ) : (
             <svg
-              className="h-6 w-6 fill-current"
+              className="w-full h-full fill-current"
               viewBox="0 0 24 24"
             >
               <path

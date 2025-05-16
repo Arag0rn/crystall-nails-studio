@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import ProposSliderSection from './ProposSection'; // Убедись, что путь корректный
+import ProposSliderSection from './ProposSection';
 
 export default function OurProposPage() {
   const [sections, setSections] = useState([]);
