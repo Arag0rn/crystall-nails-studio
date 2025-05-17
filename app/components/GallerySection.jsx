@@ -45,7 +45,7 @@ const GalleryPage = () => {
 
   return (
     <section className="p-4 container mx-auto">
-      <h2 className="text-2xl font-bold mb-4">Fotos unserer Arbeiten</h2>
+      <h2 className="text-5xl font-bold mb-4">Fotos unserer Arbeiten</h2>
       <div className="flex flex-col md:flex-row gap-4 items-start">
         {/* Основной слайдер */}
         <div className="md:w-[400px] w-full">

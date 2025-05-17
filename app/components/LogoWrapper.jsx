@@ -4,7 +4,7 @@ const LogoWrapper = ({ logoUrl }) => {
   if (!logoUrl) return null;
 
   return (
-    <div className="flex justify-center mb-6 rounded-b-full relative bg-[#001741] w-[150px] h-[150px]">
+    <div className="flex justify-center mb-6 rounded-b-full relative bg-[#001741] w-[100px] h-[100px] md:w-[150px] md:h-[150px]">
       <img
         src={logoUrl}
         alt="Logo"

@@ -35,7 +35,7 @@ export default function Footer() {
         {/* Контактная информация */}
         <div className="text-center flex gap-5 flex-wrap w-[30%]">
           <p className="text-lg">{footer.copyright}</p>
-          <p className="text-sm">Телефон: {footer.phone}</p>
+          <p className="text-sm">tel: <a href={`tel:${footer.phone}`} className="text-white hover:underline">{footer.phone}</a></p>
           <p className="text-sm">{footer.address}</p>
         </div>
 
@@ -60,7 +60,7 @@ export default function Footer() {
         )}
 
         {/* Социальные сети с иконками */}
-        <div className="flex justify-center space-x-6 w-[30%]">
+        <div className="flex justify-center flex-wrap gap-10 w-[20%] md:w-[30%]">
           {social.instagram && (
             <a
               href={social.instagram}

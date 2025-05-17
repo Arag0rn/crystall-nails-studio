@@ -7,6 +7,14 @@ export default function Header() {
   const [header, setHeader] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+    useEffect(() => {
+  if (isMobileMenuOpen) {
+    document.body.classList.add('overflow-hidden');
+  } else {
+    document.body.classList.remove('overflow-hidden');
+  }
+}, [isMobileMenuOpen]);
+
   useEffect(() => {
     const fetchHeader = async () => {
       const res = await fetch('/api/getHeader');
@@ -30,6 +38,8 @@ export default function Header() {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
+
+
   return (
     <header className="relative z-50 p-4 flex justify-between items-center h-auto ">
       <div className="container mx-auto flex justify-between items-center">
@@ -39,7 +49,7 @@ export default function Header() {
         {/* Mobile Menu Button */}
         <button
           onClick={toggleMobileMenu}
-          className="md:hidden text-white focus:outline-none w-[70px] h-[auto]"
+          className="md:hidden text-white focus:outline-none w-[60px] h-[auto]"
         >
           {isMobileMenuOpen ? (
             <svg
@@ -74,7 +84,7 @@ export default function Header() {
             <a
               key={idx}
               href={item.href}
-              className="hover:bg-[#B8860B] py-2 px-4 rounded-md transition duration-300 text-2xl"
+              className="hover:bg-[#B8860B] py-2 px-4 rounded-md transition duration-300 text-xl"
             >
               {item.label}
             </a>
@@ -94,33 +104,66 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Mobile Menu */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 w-full rounded-b-md py-4 bg-[#b1777f]">
-          <nav className="flex flex-col items-center space-y-2 text-white">
-            {navigationArray.map((item, idx) => (
-              <a
-                key={idx}
-                href={item.href}
-                className="block py-2 px-4 hover:bg-[#B8860B] rounded-md transition duration-300 w-full text-center"
-                onClick={toggleMobileMenu} 
-              >
-                {item.label}
-              </a>
-            ))}
-            {header.bookingLink && (
-              <a
-                href={header.bookingLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block mt-2 bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition duration-300 w-full text-center"
-              >
-                WhatsApp
-              </a>
-            )}
-          </nav>
-        </div>
-      )}
+{isMobileMenuOpen && (
+  <>
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 z-40"
+      onClick={toggleMobileMenu}
+    />
+
+
+    <div
+      className={`fixed top-0 right-0 w-full h-full bg-[#b1777f] z-50 flex flex-col transform transition-transform duration-300 ease-in-out md:hidden`}
+      style={{ transform: isMobileMenuOpen ? 'translateX(0)' : 'translateX(100%)' }}
+    >
+      <div className="flex items-center justify-between p-4">
+
+        <LogoWrapper logoUrl="crystal.logo.png" />
+
+        <button
+          onClick={toggleMobileMenu}
+          className="text-white w-[40px] h-[40px]"
+          aria-label="Close mobile menu"
+        >
+          <svg className="w-full h-full fill-current" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              fillRule="evenodd"
+              d="M18.278 16.864a1 1 0 0 1-1.414 1.414l-4.829-4.828-4.828 4.828a1 1 0 0 1-1.414-1.414l4.828-4.829-4.828-4.828a1 1 0 0 1 1.414-1.414l4.829 4.828 4.828-4.828a1 1 0 0 1 1.414 1.414l-4.828 4.829z"
+              clipRule="evenodd"
+            />
+          </svg>
+        </button>
+      </div>
+
+      <nav className="mt-4 flex flex-col items-center space-y-6 text-white px-6">
+        {navigationArray.map((item, idx) => (
+          <a
+            key={idx}
+            href={item.href}
+            className="block py-2 px-6 hover:bg-[#B8860B] rounded-md transition duration-300 w-full text-center text-xl"
+            onClick={toggleMobileMenu}
+          >
+            {item.label}
+          </a>
+        ))}
+
+        {header.bookingLink && (
+          <a
+            href={header.bookingLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-4 bg-green-500 text-white px-6 py-3 rounded-md hover:bg-green-600 transition duration-300 w-full text-center text-xl"
+            onClick={toggleMobileMenu}
+          >
+            WhatsApp
+          </a>
+        )}
+      </nav>
+    </div>
+  </>
+)}
+
+
     </header>
   );
 }

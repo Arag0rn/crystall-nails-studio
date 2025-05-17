@@ -19,9 +19,9 @@ export default function Hero() {
       style={{ backgroundImage: `url(${hero.backgroundImage})` }}
     >
         <div className="absolute inset-0 bg-black opacity-30 z-0" />
-        <div className="relative z-10 container mx-auto p-8 rounded-lg">
-        <h1 className="text-4xl text-white font-bold mb-4 uppercase">{hero.headline}</h1>
-        <p className="text-lg text-[#B8860B]">{hero.subtext}</p>
+        <div className="relative z-10 container mx-auto p-8 rounded-lg bg-[#001741]/80">
+        <h1 className="md:text-4xl text-xl text-white font-bold mb-4 uppercase">{hero.headline}</h1>
+        <p className="md:text-2xl text-lg uppercase inline text-[#B8860B] tracking-[3px]">{hero.subtext}</p>
       </div>
     </section>
   );

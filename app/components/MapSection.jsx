@@ -13,7 +13,7 @@ export default function MapSection() {
 
   return (
     <section id="map" className="p-8 container mx-auto">
-      <h2 className="text-2xl font-bold mb-4">Adresse</h2>
+      <h2 className="text-5xl font-bold mb-4">Adresse</h2>
       <p className="mb-4">{address}</p>
       {address && (
         <iframe

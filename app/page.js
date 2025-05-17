@@ -13,8 +13,8 @@ export default function Home() {
   return (
     <>
   <Header></Header>
-  <DiscountBanner></DiscountBanner>
   <Hero></Hero>
+    <DiscountBanner></DiscountBanner>
   <AboutUsSections></AboutUsSections>
   <ProposSection></ProposSection>
   <GallerySection></GallerySection>

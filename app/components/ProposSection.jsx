@@ -58,7 +58,7 @@ const ProposSliderSection = ({ items = [] }) => {
               <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                 <p className="text-white text-sm text-center p-4">{item.subtext}</p>
               </div>
-              <h2 className="text-center text-xl font-bold min-h-20 p-2 bg-[#001741]">{item.headline}</h2>
+              <h3 className="text-center text-xl font-bold min-h-20 p-2 bg-[#001741]">{item.headline}</h3>
             </div>
           </SwiperSlide>
         ))}

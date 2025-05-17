@@ -11,15 +11,16 @@ export default function DiscountBanner() {
       .then((data) => setDiscount(data.discount));
   }, []);
 
-  if (!discount?.enabled) return null;
-  
-
   return (
-    <div className="bg-yellow-100 border-l-4 border-yellow-500 p-4 mt-[-10px] rounded">
-      <h2 className="text-xl font-bold text-yellow-800">
-        {discount.reason}: -{discount.amount} Rabatt
-      </h2>
-      <p className="text-yellow-700 mt-1">{discount.description}</p>
+    <div className="relative mt-[58vh] min-h-[100px]">
+      {discount?.enabled ? (
+        <div className="bg-yellow-100 border-l-4 border-yellow-500 p-4 rounded">
+          <h3 className="text-xl font-bold text-yellow-800">
+            {discount.reason}: -{discount.amount} Rabatt
+          </h3>
+          <p className="text-yellow-700 mt-1">{discount.description}</p>
+        </div>
+      ) : null}
     </div>
   );
 }

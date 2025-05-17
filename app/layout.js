@@ -1,5 +1,7 @@
 import { Alegreya_Sans_SC   } from 'next/font/google';
-import { Pompiere } from 'next/font/google'; // Добавлен импорт Montserrat
+import { Pompiere } from 'next/font/google'; 
+import { Great_Vibes, Playfair_Display } from 'next/font/google';
+import { Montserrat } from 'next/font/google';
 import './globals.css';
 import { LoadingProvider } from './contex/LoadingContext';
 import GlobalLoader from './components/GlobalLoader';
@@ -11,11 +13,29 @@ const pompiere = Pompiere({
   variable: '--font-allura',
 });
 
+const montserrat = Montserrat({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'], 
+  variable: '--font-montserrat',
+});
+
 
 const alegreyaSansSC = Alegreya_Sans_SC({ 
   subsets: ['latin'],
   weight: ['100', '300', '400', '500', '700', '800', '900'], 
   variable: '--font-alegreya-sans-sc',
+});
+
+const greatVibes = Great_Vibes({
+  subsets: ['latin'],
+  weight: ['400'],
+  variable: '--font-greatVibes',
+});
+
+const playfair = Playfair_Display({
+  subsets: ['latin'],
+  weight: ['400', '500', '700'],
+  variable: '--font-playfair',
 });
 
 export const metadata = {
@@ -25,7 +45,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="ru" className={`${pompiere.variable} ${alegreyaSansSC.variable}`}>
+<html lang="ru" className={`${pompiere.variable} ${alegreyaSansSC.variable} ${greatVibes.variable} ${playfair.variable} ${montserrat.variable}`}>
             <Head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

@@ -20,7 +20,7 @@ export default function OurProposPage() {
 
   return (
     <section className="container mx-auto p-4">
-      <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4">Unsere Angebote</h2>
+      <h2 className="text-5xl font-bold mb-4">Unsere Angebote</h2>
       <ProposSliderSection items={sections} />
     </section>
   );
