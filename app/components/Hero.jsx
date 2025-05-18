@@ -15,7 +15,7 @@ export default function Hero() {
 
   return (
     <section
-      className="absolute w-full top-0 h-[80vh] bg-cover bg-center flex items-center justify-center text-white text-center p-6"
+      className="absolute w-full top-0 lg:h-[80vh] h-[700px] bg-cover bg-center flex items-center justify-center text-white text-center p-6"
       style={{ backgroundImage: `url(${hero.backgroundImage})` }}
     >
         <div className="absolute inset-0 bg-black opacity-30 z-0" />

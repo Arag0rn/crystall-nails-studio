@@ -1,46 +1,98 @@
-import { default as nextConnect } from 'next-connect';
-import multer from 'multer';
-import fs from 'fs';
-import path from 'path';
+import { v2 as cloudinary } from 'cloudinary';
+import formidable from 'formidable';
+import dbConnect from '../../utils/dbConnect';
+import OurPropos from '../../models/OurPropos'; // ✅ Импортируем модель OurPropos
 
-// Папка для изображений OurPropos
-const uploadDir = './public/uploads/ourPropos';
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-
-// multer storage
-const storage = multer.diskStorage({
-  destination: uploadDir,
-  filename: (req, file, cb) => {
-    // получаем индекс секции из query, если есть, иначе дата
-    const sectionId = req.query.id
-    cb(null, `section-${sectionId}.jpg`);
-  },
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_NAME,
+  api_key: process.env.CLOUDINARY_KEY,
+  api_secret: process.env.CLOUDINARY_SECRET,
 });
-
-const upload = multer({ storage });
-
-const apiRoute = nextConnect({
-  onError(error, req, res) {
-    res.status(501).json({ error: `Ошибка загрузки: ${error.message}` });
-  },
-  onNoMatch(req, res) {
-    res.status(405).json({ error: `Метод ${req.method} не поддерживается` });
-  },
-});
-
-apiRoute.use(upload.single('file'));
-
-apiRoute.post((req, res) => {
-  const sectionId = req.query.id;
-  const imageUrl = `/uploads/ourPropos/section-${sectionId}.jpg`;
-
-  res.status(200).json({ url: imageUrl });
-});
-
-export default apiRoute;
 
 export const config = {
   api: {
     bodyParser: false,
   },
 };
+
+export default async function handler(req, res) {
+  try {
+    if (req.method !== 'POST') {
+      return res.status(405).json({ error: `Метод ${req.method} не поддерживается` });
+    }
+
+    const { id } = req.query;
+
+    if (!id || id === 'undefined') {
+      return res.status(400).json({ error: 'Отсутствует корректный ID секции' });
+    }
+
+    const form = formidable({ multiples: false });
+
+    await new Promise((resolve, reject) => {
+      form.parse(req, async (err, fields, files) => {
+        if (err) {
+          console.error('Formidable error:', err);
+          return reject({ status: 500, message: 'Ошибка обработки формы' });
+        }
+
+        const file = files?.file;
+        let filepath;
+        if (file && Array.isArray(file) && file.length > 0) {
+          filepath = file[0].filepath || file[0].path;
+        } else if (file && !Array.isArray(file)) {
+          filepath = file.filepath || file.path;
+        }
+
+        if (!filepath) {
+          console.error('Не найден путь к файлу:', file);
+          return reject({ status: 400, message: 'Файл не найден' });
+        }
+
+        try {
+          await dbConnect();
+
+          const result = await cloudinary.uploader.upload(filepath, {
+            folder: 'our-propos', // Изменена папка для соответствия разделу
+            use_filename: true,
+            unique_filename: false,
+            overwrite: true,
+            transformation: [
+              { fetch_format: 'auto' },
+              { quality: 'auto:eco' },
+            ],
+          });
+
+          const image = {
+            url: result.secure_url,
+            public_id: result.public_id,
+          };
+
+          const doc = await OurPropos.findOne();
+          if (!doc) {
+            return resolve({ status: 404, data: { error: 'Документ OurPropos не найден' } });
+          }
+
+          const item = doc.items.id(id);
+          if (!item) {
+            return resolve({ status: 404, data: { error: 'Секция OurPropos не найдена' } });
+          }
+
+          item.backgroundImage = image.url;
+          await doc.save();
+
+          return resolve({ status: 200, data: { imageUrl: image.url } });
+        } catch (uploadErr) {
+          console.error('Ошибка при загрузке:', uploadErr);
+          return reject({ status: 500, message: 'Ошибка загрузки изображения' });
+        }
+      });
+    })
+    .then(({ status, data }) => res.status(status).json(data))
+    .catch(({ status, message }) => res.status(status || 500).json({ error: message || 'Произошла ошибка' }));
+
+  } catch (error) {
+    console.error('Непредвиденная ошибка:', error);
+    return res.status(500).json({ error: 'Непредвиденная ошибка сервера' });
+  }
+}

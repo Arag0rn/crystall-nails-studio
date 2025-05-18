@@ -1,13 +1,14 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { useLoading } from '../../contex/LoadingContext';
 
-
 export default function AdminAboutSection() {
   const [sections, setSections] = useState([]);
-    const { setLoading } = useLoading();
+  const [savingIndex, setSavingIndex] = useState(null);
+  const [message, setMessage] = useState(null);
+  const { setLoading } = useLoading();
 
   useEffect(() => {
     fetch('/api/about-sections')
@@ -19,21 +20,40 @@ export default function AdminAboutSection() {
   const handleSave = async (index) => {
     const sec = sections[index];
     const method = sec._id ? 'PATCH' : 'POST';
-  
+
     const body = {
-      id: sec._id, 
+      id: sec._id,
       title: sec.title,
       content: sec.content,
-      imageUrls: sec.imageUrls,
+      imageUrl: sec.imageUrl, // ✅ Отправляем один объект imageUrl
       cta: sec.cta,
-      order: index + 1, 
+      order: index + 1,
     };
-  
-    await fetch('/api/about-sections', {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
+
+    try {
+      setSavingIndex(index);
+      const res = await fetch('/api/about-sections', {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+
+      if (!res.ok) throw new Error();
+
+      const data = await res.json();
+      if (!sec._id && data._id) {
+        setSections((prev) =>
+          prev.map((s, i) => (i === index ? { ...s, _id: data._id } : s))
+        );
+      }
+
+      setMessage({ type: 'success', text: 'Секция сохранена!' });
+    } catch {
+      setMessage({ type: 'error', text: 'Ошибка при сохранении секции.' });
+    } finally {
+      setSavingIndex(null);
+      setTimeout(() => setMessage(null), 3000);
+    }
   };
 
   const handleChange = (index, key, value) => {
@@ -44,18 +64,31 @@ export default function AdminAboutSection() {
 
   const handleImageUpload = async (index, files) => {
     const formData = new FormData();
-    for (let file of files) formData.append('files', file);
+    if (files.length > 0) {
+      formData.append('file', files[0]);
+    } else {
+      console.warn('Нет выбранных файлов для загрузки.');
+      return;
+    }
 
-    const res = await fetch(`/api/uploadAboutImage?id=${sections[index]._id}`, {
-      method: 'POST',
-      body: formData,
-    });
+    try {
+      const res = await fetch(`/api/uploadAboutImage?id=${sections[index]._id}`, {
+        method: 'POST',
+        body: formData,
+      });
 
-    const data = await res.json();
-    if (data.urls) {
-      setSections((prev) =>
-        prev.map((s, i) => (i === index ? { ...s, imageUrls: [...(s.imageUrls || []), ...data.urls] } : s))
-      );
+      const data = await res.json();
+
+      if (data?.imageUrl) {
+        // ✅ Обновляем state с одним объектом imageUrl
+        setSections((prev) =>
+          prev.map((s, i) => (i === index ? { ...s, imageUrl: data.imageUrl } : s))
+        );
+      } else if (data?.error) {
+        console.error('Ошибка загрузки изображения:', data.error);
+      }
+    } catch (err) {
+      console.error('Ошибка при загрузке:', err);
     }
   };
 
@@ -72,15 +105,16 @@ export default function AdminAboutSection() {
       body: JSON.stringify({ order: items.map((s) => s._id) }),
     });
   };
+
   const handleSectionDelete = async (id) => {
     const confirmDelete = window.confirm('Вы уверены, что хотите удалить эту секцию?');
     if (!confirmDelete) return;
-  
+
     try {
       const res = await fetch(`/api/about-sections?id=${id}`, {
         method: 'DELETE',
       });
-  
+
       if (res.ok) {
         setSections((prev) => prev.filter((s) => s._id !== id));
       } else {
@@ -92,12 +126,25 @@ export default function AdminAboutSection() {
   };
 
   const addSection = () => {
-    setSections((prev) => [...prev, { title: '', content: '', imageUrls: [], cta: '', order: prev.length + 1 }]);
+    setSections((prev) => [
+      ...prev,
+      { title: '', content: '', imageUrl: null, cta: '', order: prev.length + 1 }, // ✅ imageUrl инициализируем как null
+    ]);
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold">Редактировать секции "Über uns"</h1>
+
+      {message && (
+        <div
+          className={`p-3 rounded text-white ${
+            message.type === 'success' ? 'bg-green-600' : 'bg-red-600'
+          }`}
+        >
+          {message.text}
+        </div>
+      )}
 
       <button onClick={addSection} className="bg-blue-600 text-white px-4 py-2 rounded">
         Добавить секцию
@@ -114,7 +161,7 @@ export default function AdminAboutSection() {
                       ref={provided.innerRef}
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
-                      className="border p-4 rounded space-y-4 mt-4"
+                      className="border p-4 rounded space-y-4 mt-4 bg-white shadow"
                     >
                       <input
                         type="text"
@@ -133,28 +180,28 @@ export default function AdminAboutSection() {
                       <input
                         type="file"
                         accept="image/*"
-                        multiple
                         onChange={(e) => handleImageUpload(i, e.target.files)}
                       />
-                      {sec.imageUrls?.length > 0 && (
-                        <div className="grid grid-cols-2 gap-2">
-                          {sec.imageUrls.map((url, idx) => (
-                            <img key={idx} src={url} className="rounded shadow max-h-32 object-cover" />
-                          ))}
+                      {sec.imageUrl?.url && ( // ✅ Отображаем imageUrl.url
+                        <div className="grid grid-cols-1 gap-2">
+                          <img key={0} src={sec.imageUrl.url} className="rounded shadow max-h-32 object-cover" />
                         </div>
                       )}
-                      <button
-                        onClick={() => handleSectionDelete(sec._id)}
-                        className="mt-2 bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
+                      <div className="flex gap-4 mt-2">
+                        <button
+                          onClick={() => handleSectionDelete(sec._id)}
+                          className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
                         >
-                        Удалить секцию
+                          Удалить секцию
                         </button>
-                      <button
-                        onClick={() => handleSave(i)}
-                        className="bg-green-600 text-white px-4 py-2 rounded"
-                      >
-                        💾Сохранить
-                      </button>
+                        <button
+                          onClick={() => handleSave(i)}
+                          disabled={savingIndex === i}
+                          className="bg-green-600 text-white px-4 py-2 rounded disabled:opacity-50"
+                        >
+                          {savingIndex === i ? '💾 Сохранение...' : '💾 Сохранить'}
+                        </button>
+                      </div>
                     </div>
                   )}
                 </Draggable>

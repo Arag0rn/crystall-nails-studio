@@ -1,45 +1,73 @@
-import nextConnect from 'next-connect';
-import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
+import { v2 as cloudinary } from 'cloudinary';
+import formidable from 'formidable';
 import dbConnect from '../../utils/dbConnect';
 import GalleryImage from '../../models/GalleryImage';
 
-const uploadDir = './public/uploads/gallery';
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-
-const storage = multer.diskStorage({
-  destination: uploadDir,
-  filename: (req, file, cb) => {
-    const name = `gallery-${Date.now()}${path.extname(file.originalname)}`;
-    cb(null, name);
-  },
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_NAME,
+  api_key: process.env.CLOUDINARY_KEY,
+  api_secret: process.env.CLOUDINARY_SECRET,
 });
-
-const upload = multer({ storage });
-
-const apiRoute = nextConnect({
-  onError(err, req, res) {
-    res.status(501).json({ error: `Ошибка загрузки: ${err.message}` });
-  },
-  onNoMatch(req, res) {
-    res.status(405).json({ error: `Метод ${req.method} не поддерживается` });
-  },
-});
-
-apiRoute.use(upload.single('file'));
-
-apiRoute.post(async (req, res) => {
-  await dbConnect();
-  const fileUrl = `/uploads/gallery/${req.file.filename}`;
-  const image = await GalleryImage.create({ url: fileUrl });
-  res.status(200).json(image);
-});
-
-export default apiRoute;
 
 export const config = {
   api: {
     bodyParser: false,
   },
 };
+
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: `Метод ${req.method} не поддерживается` });
+  }
+
+  const form = formidable({ multiples: false });
+
+form.parse(req, async (err, fields, files) => {
+  if (err) {
+    console.error('Formidable error:', err);
+    return res.status(500).json({ error: 'Ошибка обработки формы' });
+  }
+
+  const file = files.file;
+  if (!file) {
+    console.error('Файл не найден в запросе');
+    return res.status(400).json({ error: 'Файл не найден' });
+  }
+
+  const filepath = file.filepath || file.path || (Array.isArray(file) ? file[0].filepath : undefined);
+
+  if (!filepath) {
+    console.error('Путь к файлу не найден в объекте file:', file);
+    return res.status(400).json({ error: 'Путь к файлу не найден' });
+  }
+
+  try {
+    await dbConnect();
+
+    console.log('Загружаем файл в Cloudinary:', filepath);
+
+    const result = await cloudinary.uploader.upload(filepath, {
+      folder: 'gallery',
+      use_filename: true,
+      unique_filename: false,
+      overwrite: false,
+      transformation: [
+        { fetch_format: 'auto' },
+        { quality: 'auto:eco' },
+      ],
+    });
+
+    console.log('Cloudinary upload result:', result);
+
+    const image = await GalleryImage.create({
+      url: result.secure_url,
+      public_id: result.public_id,
+    });
+
+    res.status(200).json(image);
+  } catch (uploadErr) {
+    console.error('Ошибка загрузки в Cloudinary или БД:', uploadErr);
+    res.status(500).json({ error: 'Ошибка загрузки в Cloudinary или сохранения в БД' });
+  }
+});
+}

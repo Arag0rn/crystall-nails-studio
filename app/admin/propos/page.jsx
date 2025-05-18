@@ -15,10 +15,10 @@ export default function AdminProposPage() {
   const [price, setPrice] = useState('');
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
-  const [isUploading, setIsUploading] = useState(false); // локальный загрузчик только для кнопки
+  const [isUploading, setIsUploading] = useState(false); 
   const fileInputRef = useRef(null);
 
-  const { setLoading } = useLoading(); // глобальный лоадер
+  const { setLoading } = useLoading(); 
 
   useEffect(() => {
     setLoading(true);
@@ -47,25 +47,34 @@ export default function AdminProposPage() {
       const createData = await createRes.json();
       if (!createRes.ok || !createData.propos?.items?.length) throw new Error('Ошибка создания');
 
-      const newSection = createData.propos.items.at(-1);
+      const newSectionFromServer = createData.propos.items.at(-1); 
+      const newSectionId = newSectionFromServer._id;
       const formData = new FormData();
       formData.append('file', file);
 
-      const imageRes = await fetch(`/api/uploadOurProposImage?id=${newSection._id}`, {
+
+      setSections((prevSections) => [...prevSections, newSectionFromServer]);
+
+      const imageRes = await fetch(`/api/uploadOurProposImage?id=${newSectionId}`, {
         method: 'POST',
         body: formData,
       });
 
       const imageData = await imageRes.json();
-      const imageUrl = imageData.url;
+      const imageUrl = imageData?.imageUrl?.url;
 
       await fetch('/api/ourPropos', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: newSection._id, backgroundImage: imageUrl }),
+        body: JSON.stringify({ id: newSectionId, backgroundImage: imageUrl }),
       });
 
-      setSections((prev) => [...prev, { ...newSection, backgroundImage: imageUrl }]);
+      setSections((prevSections) =>
+        prevSections.map((section) =>
+          section._id === newSectionId ? { ...section, backgroundImage: imageUrl } : section
+        )
+      );
+
       setHeadline('');
       setSubtext('');
       setPrice('');
@@ -212,7 +221,7 @@ export default function AdminProposPage() {
                       />
                       {section.backgroundImage && (
                         <img
-                          src={section.backgroundImage}
+                          src={section.backgroundImage} // ✅ Используем backgroundImage
                           alt="Секция"
                           className="mt-2 border max-h-60"
                         />

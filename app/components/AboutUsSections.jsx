@@ -23,17 +23,15 @@ export default function AboutUsSections() {
       {/* Первая секция */}
       <section id="section-0" className="container mx-auto px-4 py-12">
         <div className="flex flex-col md:flex-row gap-8 w-full ">
-          {firstSection.imageUrls?.length > 0 && (
+          {firstSection.imageUrl?.url && (
             <div className="w-full h-[400px] lg:w-[30%]">
-              {firstSection.imageUrls.slice(0, 1).map((url, i) => (
-                <div key={i} className="aspect-w-4 aspect-h-3 flex justify-center">
-                  <img
-                    src={url}
-                    alt="About section"
-                    className="h-[400px] object-cover rounded-lg shadow-md"
-                  />
-                </div>
-              ))}
+              <div className="aspect-w-4 aspect-h-3 flex justify-center">
+                <img
+                  src={firstSection.imageUrl.url}
+                  alt={firstSection.title}
+                  className="h-[400px] object-cover rounded-lg shadow-md"
+                />
+              </div>
             </div>
           )}
           <div className="space-y-4 md:w-[70%] lg:w-[100%]">
@@ -49,27 +47,27 @@ export default function AboutUsSections() {
       </section>
 
       {/* Карточки остальных секций */}
-{remainingSections.length > 0 && (
-  <section className="container mx-auto px-4 py-12">
-    <div className="grid gap-20 md:grid-cols-2 lg:grid-cols-3">
-      {remainingSections.map((sec) => (
-        <div key={sec._id} className="shadow-md rounded-lg overflow-hidden">
-          {sec.imageUrls?.length > 0 && (
-            <img
-              src={sec.imageUrls[0]}
-              alt={sec.title}
-              className="w-full h-48 object-cover rounded-t-lg"
-            />
-          )}
-          <div className="bg-[#001741] text-white p-4 rounded-b-lg min-h-25">
-            <h3 className="text-xl font-semibold">{sec.title}</h3>
-            <p className="text-sm">{sec.content.substring(0, 100)}...</p>
+      {remainingSections.length > 0 && (
+        <section className="container mx-auto px-4 py-12">
+          <div className="grid gap-20 md:grid-cols-2 lg:grid-cols-3">
+            {remainingSections.map((sec) => (
+              <div key={sec._id} className="shadow-md rounded-lg overflow-hidden">
+                {sec.imageUrl?.url && (
+                  <img
+                    src={sec.imageUrl.url}
+                    alt={sec.title}
+                    className="w-full h-48 object-cover rounded-t-lg"
+                  />
+                )}
+                <div className="bg-[#001741] text-white p-4 rounded-b-lg min-h-25">
+                  <h3 className="text-xl font-semibold">{sec.title}</h3>
+                  <p className="text-sm">{sec.content.substring(0, 100)}...</p>
+                </div>
+              </div>
+            ))}
           </div>
-        </div>
-      ))}
-    </div>
-  </section>
-)}
+        </section>
+      )}
     </>
   );
 }

@@ -49,7 +49,7 @@ export default function Header() {
         {/* Mobile Menu Button */}
         <button
           onClick={toggleMobileMenu}
-          className="md:hidden text-white focus:outline-none w-[60px] h-[auto]"
+          className="lg:hidden text-white focus:outline-none w-[60px] h-[auto]"
         >
           {isMobileMenuOpen ? (
             <svg
@@ -78,7 +78,7 @@ export default function Header() {
 
         {/* Navigation Links */}
         <nav
-          className={`hidden md:flex space-x-4 text-sm md:text-base font-medium text-white`}
+          className={`hidden lg:flex space-x-4 text-sm md:text-base font-medium text-white`}
         >
           {navigationArray.map((item, idx) => (
             <a
@@ -92,7 +92,7 @@ export default function Header() {
         </nav>
 
         {/* WhatsApp Button */}
-        <div className="hidden md:block">
+        <div className="hidden lg:block">
           <a
             id='whatsapp'
             href={header.bookingLink}
