@@ -14,6 +14,7 @@ const footerSchema = new mongoose.Schema({
   social: {
     instagram: String,
     tiktok: String,
+    whatsapp: String,
   },
 });
 

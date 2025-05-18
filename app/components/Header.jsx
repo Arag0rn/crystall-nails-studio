@@ -94,6 +94,7 @@ export default function Header() {
         {/* WhatsApp Button */}
         <div className="hidden md:block">
           <a
+            id='whatsapp'
             href={header.bookingLink}
             target="_blank"
             rel="noopener noreferrer"

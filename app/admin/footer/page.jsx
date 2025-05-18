@@ -138,6 +138,12 @@ export default function AdminFooterSettings() {
           value={data.social.tiktok ? data.social.tiktok : ''}
           onChange={(e) => updateField('social', { ...data.social, tiktok: e.target.value })}
         />
+        <label className="block font-medium mt-2">WhatsApp</label>
+        <input
+          className="border p-2 w-full"
+          value={data.social.whatsapp ? data.social.whatsapp : ''}
+          onChange={(e) => updateField('social', { ...data.social, whatsapp: e.target.value })}
+        />
       </div>
 
       <button onClick={save} className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">

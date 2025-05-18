@@ -19,7 +19,7 @@ export default function OurProposPage() {
   if (!sections.length) return null;
 
   return (
-    <section className="container mx-auto p-4">
+    <section id="section-1" className="container mx-auto p-4">
       <h2 className="text-5xl font-bold mb-4">Unsere Angebote</h2>
       <ProposSliderSection items={sections} />
     </section>

@@ -58,20 +58,20 @@ h2 {
   font-family: var(--font-great-vibes), serif;
   letter-spacing: 2px;
 }
-h3 {
+h3, #whatsapp {
   font-family: var(--font-montserrat), serif;
 }
 nav a{
   font-family: var(--font-danmark), sans-serif;
 }
 
-/* Навигация и футер */
+
 aside, aside a {
   font-family: var(--font-playfair), sans-serif;
 }
 
 footer {
-  background: linear-gradient(to bottom, transparent, #000000);
+  background: linear-gradient(to bottom, transparent, #001741);
 }
 
 .slide-in-right {

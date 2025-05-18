@@ -10,6 +10,7 @@ import 'swiper/css/thumbs';
 const GalleryPage = () => {
   const [images, setImages] = useState([]);
   const [thumbsSwiper, setThumbsSwiper] = useState(null);
+  const [activeIndex, setActiveIndex] = useState(0);
   const mainSwiperRef = useRef(null);
 
   useEffect(() => {
@@ -26,13 +27,11 @@ const GalleryPage = () => {
   }, []);
 
   const handleSlideChange = () => {
-    if (thumbsSwiper && mainSwiperRef.current?.swiper) {
-      thumbsSwiper.slideTo(mainSwiperRef.current.swiper.activeIndex);
+    const index = mainSwiperRef.current?.swiper.activeIndex || 0;
+    setActiveIndex(index);
+    if (thumbsSwiper) {
+      thumbsSwiper.slideTo(index);
     }
-  };
-
-  const syncThumbs = (swiper) => {
-    setThumbsSwiper(swiper);
   };
 
   if (images.length === 0) {
@@ -44,9 +43,10 @@ const GalleryPage = () => {
   }
 
   return (
-    <section className="p-4 container mx-auto">
+    <section id="section-2" className="p-4 container mx-auto">
       <h2 className="text-5xl font-bold mb-4">Fotos unserer Arbeiten</h2>
       <div className="flex flex-col md:flex-row gap-4 items-start">
+        
         {/* Основной слайдер */}
         <div className="md:w-[400px] w-full">
           <Swiper
@@ -75,24 +75,29 @@ const GalleryPage = () => {
           </Swiper>
         </div>
 
-        {/* Миниатюры в многоколоночном виде */}
+        {/* Миниатюры */}
         <div className="w-full overflow-y-auto max-h-[650px] md:max-h-[866px]">
           <div
-            className="mySwiper mySwiper-thumbs grid grid-cols-auto w=full gap-2"
+            className="grid grid-cols-auto gap-2"
             style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}
           >
             {images.map((img, index) => (
-              <SwiperSlide key={img._id}
-
-                className="w-full mb-2 md:mb-4 cursor-pointer opacity-60 hover:opacity-100 transition-opacity duration-300 rounded shadow"
-                onClick={() => mainSwiperRef.current?.swiper.slideTo(index)}
+              <div
+                key={img._id}
+                className={`w-full mb-2 md:mb-4 cursor-pointer transition-opacity duration-300 rounded shadow ${
+                  activeIndex === index ? 'opacity-100' : 'opacity-60'
+                }`}
+                onClick={() => {
+                  mainSwiperRef.current?.swiper.slideTo(index);
+                  setActiveIndex(index);
+                }}
               >
                 <img
                   src={img.url}
                   alt="Thumbnail"
                   className="w-full h-24 md:h-50 object-cover rounded"
                 />
-              </SwiperSlide>
+              </div>
             ))}
           </div>
         </div>

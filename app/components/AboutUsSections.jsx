@@ -24,7 +24,7 @@ export default function AboutUsSections() {
       <section id="section-0" className="container mx-auto px-4 py-12">
         <div className="flex flex-col md:flex-row gap-8 w-full ">
           {firstSection.imageUrls?.length > 0 && (
-            <div className="w-full h-[400px]">
+            <div className="w-full h-[400px] lg:w-[30%]">
               {firstSection.imageUrls.slice(0, 1).map((url, i) => (
                 <div key={i} className="aspect-w-4 aspect-h-3 flex justify-center">
                   <img
@@ -36,7 +36,7 @@ export default function AboutUsSections() {
               ))}
             </div>
           )}
-          <div className="space-y-4">
+          <div className="space-y-4 md:w-[70%] lg:w-[100%]">
             <h2 className="text-5xl font-bold text-[#B8860B]">{firstSection.title}</h2>
             <p className="text-gray-700 whitespace-pre-line">{firstSection.content}</p>
             {firstSection.cta && (
