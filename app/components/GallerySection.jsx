@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Thumbs } from 'swiper/modules';
+
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/thumbs';
@@ -10,8 +11,8 @@ import 'swiper/css/thumbs';
 const GalleryPage = () => {
   const [images, setImages] = useState([]);
   const [thumbsSwiper, setThumbsSwiper] = useState(null);
-  const [activeIndex, setActiveIndex] = useState(0);
   const mainSwiperRef = useRef(null);
+  const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
     const fetchImages = async () => {
@@ -27,10 +28,12 @@ const GalleryPage = () => {
   }, []);
 
   const handleSlideChange = () => {
-    const index = mainSwiperRef.current?.swiper.activeIndex || 0;
-    setActiveIndex(index);
-    if (thumbsSwiper) {
-      thumbsSwiper.slideTo(index);
+    if (mainSwiperRef.current?.swiper) {
+      const index = mainSwiperRef.current.swiper.realIndex;
+      setActiveIndex(index);
+      if (thumbsSwiper) {
+        thumbsSwiper.slideTo(index);
+      }
     }
   };
 
@@ -47,13 +50,12 @@ const GalleryPage = () => {
       <h2 className="text-5xl font-bold mb-4">Fotos unserer Arbeiten</h2>
       <div className="flex flex-col md:flex-row gap-4 items-start">
         
-        {/* Основной слайдер */}
-        <div className="md:w-[400px] w-full">
+        <div className="w-full md:w-[400px] mx-auto">
           <Swiper
             ref={mainSwiperRef}
             style={{
-              '--swiper-navigation-color': '#000',
-              '--swiper-pagination-color': '#000',
+              '--swiper-navigation-color': '#B8860B',
+              '--swiper-pagination-color': '#B8860B',
             }}
             loop={true}
             spaceBetween={10}
@@ -75,8 +77,7 @@ const GalleryPage = () => {
           </Swiper>
         </div>
 
-        {/* Миниатюры */}
-        <div className="w-full overflow-y-auto max-h-[650px] md:max-h-[866px]">
+        <div className="md:w-full overflow-y-auto max-h-[650px] md:max-h-[866px] hidden lg:block">
           <div
             className="grid grid-cols-auto gap-2"
             style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}
@@ -88,8 +89,7 @@ const GalleryPage = () => {
                   activeIndex === index ? 'opacity-100' : 'opacity-60'
                 }`}
                 onClick={() => {
-                  mainSwiperRef.current?.swiper.slideTo(index);
-                  setActiveIndex(index);
+                  mainSwiperRef.current?.swiper.slideToLoop(index);
                 }}
               >
                 <img

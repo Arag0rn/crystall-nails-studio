@@ -12,7 +12,7 @@ export default function DiscountBanner() {
   }, []);
 
   return (
-    <div className="relative mt-[58vh] min-h-[100px]">
+    <div className="relative min-h-[100px]">
       {discount?.enabled ? (
         <div className="bg-yellow-100 border-l-4 border-yellow-500 p-4 rounded">
           <h3 className="text-xl font-bold text-yellow-800">

@@ -73,13 +73,14 @@ export default function AboutUsSections() {
                     className="w-full h-48 object-cover rounded-t-lg"
                   />
                 )}
-                <div className="bg-[#001741] text-white p-4 rounded-b-lg min-h-25 h-[100%]">
+                <div className="bg-[#073891] text-white p-4 rounded-b-lg min-h-25 h-[100%]">
                   <h3 className="text-xl font-semibold">{sec.title}</h3>
                   <p className="text-sm">{sec.content.substring(0, 200)}</p>
                 </div>
 
+
                 {activeCardId === sec._id && (
-                  <div className="absolute inset-0 bg-[#001741]/90 text-white p-4 flex flex-col justify-center items-center text-center rounded-lg opacity-100 transition-opacity duration-300">
+                  <div className="absolute inset-0 bg-[#073891]/90 text-white p-4 flex flex-col justify-center items-center text-center rounded-lg opacity-100 transition-opacity duration-300">
                     <h3 className="text-xl font-semibold mb-2">{sec.title}</h3>
                     <p className="text-sm overflow-y-auto max-h-[80%]">{sec.content}</p>
                   </div>

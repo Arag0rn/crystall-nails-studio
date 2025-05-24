@@ -41,7 +41,7 @@ export default function Header() {
 
 
   return (
-    <header className="relative z-50 p-4 flex justify-between items-center h-auto ">
+    <header className="z-50 p-4 flex justify-between items-center h-auto absolute top-0 left-0 w-full">
       <div className="container mx-auto flex justify-between items-center">
         {/* Logo */}
  <LogoWrapper logoUrl="crystal.logo.png" />

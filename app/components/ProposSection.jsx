@@ -61,7 +61,7 @@ const ProposSliderSection = ({ items = [] }) => {
         {items.map((item, index) => (
           <SwiperSlide key={item._id || index} className="!h-auto">
             <div className="group relative overflow-hidden rounded-lg">
-              <div className="absolute p-2 text-[#001741] rounded-3xl font-semibold top-5 right-5 bg-[#B8860B]">{item.price} &euro;</div>
+              <div className="absolute p-2 text-[#073891] rounded-3xl font-semibold top-5 right-5 bg-[#B8860B]">{item.price} &euro;</div>
               <img
                 src={item.backgroundImage}
                 alt={item.headline}
@@ -71,7 +71,7 @@ const ProposSliderSection = ({ items = [] }) => {
               <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                 <p className="text-white text-sm text-center p-4">{item.subtext}</p>
               </div>
-              <h3 className="flex text-center justify-center items-center text-xl font-bold min-h-30 overflow-hidden p-2 bg-[#001741]">{item.headline}</h3>
+              <h3 className="flex text-center justify-center items-center text-xl font-bold min-h-30 overflow-hidden p-2 bg-[#073891]">{item.headline}</h3>
             </div>
           </SwiperSlide>
         ))}

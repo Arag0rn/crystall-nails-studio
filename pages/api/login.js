@@ -1,6 +1,6 @@
 export default function handler(req, res) {
     const { password } = req.body;
-    const ADMIN_PASSWORD = 'supersecret'; 
+    const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD; 
   
     if (password === ADMIN_PASSWORD) {
       res.setHeader('Set-Cookie', `admin_auth=1; Path=/; HttpOnly; Max-Age=3600`);

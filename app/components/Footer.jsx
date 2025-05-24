@@ -37,7 +37,7 @@ export default function Footer() {
 
     <div className="text-center flex flex-col gap-2 w-full md:w-[30%] order-1 md:order-none">
       <p className="text-lg">
-        <FontAwesomeIcon icon={faPhone} className="mr-2 text-white" /><a href={`tel:${footer.phone}`} className="text-[#001741] hover:underline">{footer.phone}</a>
+        <FontAwesomeIcon icon={faPhone} className="mr-2 text-white" /><a href={`tel:${footer.phone}`} className="text-[#073891] hover:underline">{footer.phone}</a>
       </p>
       <p className="text-sm text-white">{footer.address}</p>
     </div>
