@@ -70,7 +70,7 @@ export default async function handler(req, res) {
 
           const updatedSection = await AboutSection.findByIdAndUpdate(
             id,
-            { $set: { imageUrl: image } }, // ✅ Обновляем поле imageUrl одним объектом
+            { $set: { imageUrl: image } }, 
             { new: true }
           );
 
@@ -78,7 +78,7 @@ export default async function handler(req, res) {
             return resolve({ status: 404, data: { error: 'Секция не найдена' } });
           }
 
-          return resolve({ status: 200, data: { imageUrl: updatedSection.imageUrl } }); // ✅ Возвращаем один объект imageUrl
+          return resolve({ status: 200, data: { imageUrl: updatedSection.imageUrl } }); 
         } catch (uploadErr) {
           console.error('Ошибка при загрузке:', uploadErr);
           return reject({ status: 500, message: 'Ошибка загрузки изображения' });

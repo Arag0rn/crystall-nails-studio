@@ -10,16 +10,16 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'POST') {
-    const { title, content, imageUrls, cta, order } = req.body;
-    const section = await AboutSection.create({ title, content, imageUrls, cta, order });
-    return res.status(201).json({ section });
+    const { title, content, imageUrl, cta, order } = req.body;
+    const section = await AboutSection.create({ title, content, imageUrl, cta, order });
+    return res.status(201).json({ _id: section._id });
   }
 
   if (req.method === 'PATCH') {
-    const { id, title, content, imageUrls, cta, order } = req.body;
+    const { id, title, content, imageUrl, cta, order } = req.body;
     const section = await AboutSection.findByIdAndUpdate(
       id,
-      { title, content, imageUrls, cta, order },
+      { title, content, imageUrl, cta, order },
       { new: true }
     );
     return res.status(200).json({ section });

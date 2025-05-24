@@ -11,6 +11,7 @@ export default function AdminAboutSection() {
   const { setLoading } = useLoading();
 
   useEffect(() => {
+    setLoading(true);
     fetch('/api/about-sections')
       .then((res) => res.json())
       .then((data) => setSections(data.sections))
@@ -25,7 +26,7 @@ export default function AdminAboutSection() {
       id: sec._id,
       title: sec.title,
       content: sec.content,
-      imageUrl: sec.imageUrl, // ✅ Отправляем один объект imageUrl
+      imageUrl: sec.imageUrl,
       cta: sec.cta,
       order: index + 1,
     };
@@ -63,16 +64,26 @@ export default function AdminAboutSection() {
   };
 
   const handleImageUpload = async (index, files) => {
+    const sec = sections[index];
+
+    if (!sec._id) {
+      setMessage({
+        type: 'error',
+        text: 'Сначала сохраните секцию перед загрузкой изображения.',
+      });
+      setTimeout(() => setMessage(null), 3000);
+      return;
+    }
+
     const formData = new FormData();
     if (files.length > 0) {
       formData.append('file', files[0]);
     } else {
-      console.warn('Нет выбранных файлов для загрузки.');
       return;
     }
 
     try {
-      const res = await fetch(`/api/uploadAboutImage?id=${sections[index]._id}`, {
+      const res = await fetch(`/api/uploadAboutImage?id=${sec._id}`, {
         method: 'POST',
         body: formData,
       });
@@ -80,7 +91,6 @@ export default function AdminAboutSection() {
       const data = await res.json();
 
       if (data?.imageUrl) {
-        // ✅ Обновляем state с одним объектом imageUrl
         setSections((prev) =>
           prev.map((s, i) => (i === index ? { ...s, imageUrl: data.imageUrl } : s))
         );
@@ -125,11 +135,35 @@ export default function AdminAboutSection() {
     }
   };
 
-  const addSection = () => {
-    setSections((prev) => [
-      ...prev,
-      { title: '', content: '', imageUrl: null, cta: '', order: prev.length + 1 }, // ✅ imageUrl инициализируем как null
-    ]);
+  const addSection = async () => {
+    const newSection = {
+      title: '',
+      content: '',
+      imageUrl: null,
+      cta: '',
+      order: sections.length + 1,
+    };
+
+    try {
+      setLoading(true);
+      const res = await fetch('/api/about-sections', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newSection),
+      });
+
+      if (!res.ok) throw new Error();
+
+      const data = await res.json();
+      setSections((prev) => [...prev, { ...newSection, _id: data._id }]);
+
+      setMessage({ type: 'success', text: 'Новая секция добавлена!' });
+    } catch {
+      setMessage({ type: 'error', text: 'Ошибка при добавлении секции.' });
+    } finally {
+      setLoading(false);
+      setTimeout(() => setMessage(null), 3000);
+    }
   };
 
   return (
@@ -163,6 +197,12 @@ export default function AdminAboutSection() {
                       {...provided.dragHandleProps}
                       className="border p-4 rounded space-y-4 mt-4 bg-white shadow"
                     >
+                      {!sec._id && (
+                        <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 p-2 rounded">
+                          Секция ещё не сохранена — изображения и перетаскивание недоступны.
+                        </div>
+                      )}
+
                       <input
                         type="text"
                         value={sec.title}
@@ -182,9 +222,13 @@ export default function AdminAboutSection() {
                         accept="image/*"
                         onChange={(e) => handleImageUpload(i, e.target.files)}
                       />
-                      {sec.imageUrl?.url && ( // ✅ Отображаем imageUrl.url
+                      {sec.imageUrl?.url && (
                         <div className="grid grid-cols-1 gap-2">
-                          <img key={0} src={sec.imageUrl.url} className="rounded shadow max-h-32 object-cover" />
+                          <img
+                            src={sec.imageUrl.url}
+                            alt="Изображение"
+                            className="rounded shadow max-h-32 object-cover"
+                          />
                         </div>
                       )}
                       <div className="flex gap-4 mt-2">

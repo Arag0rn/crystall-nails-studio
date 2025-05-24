@@ -15,10 +15,11 @@ export default function AdminProposPage() {
   const [price, setPrice] = useState('');
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
-  const [isUploading, setIsUploading] = useState(false); 
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadingSections, setUploadingSections] = useState({});
   const fileInputRef = useRef(null);
 
-  const { setLoading } = useLoading(); 
+  const { setLoading } = useLoading();
 
   useEffect(() => {
     setLoading(true);
@@ -47,13 +48,18 @@ export default function AdminProposPage() {
       const createData = await createRes.json();
       if (!createRes.ok || !createData.propos?.items?.length) throw new Error('Ошибка создания');
 
-      const newSectionFromServer = createData.propos.items.at(-1); 
+      const newSectionFromServer = createData.propos.items.at(-1);
       const newSectionId = newSectionFromServer._id;
       const formData = new FormData();
       formData.append('file', file);
 
-
-      setSections((prevSections) => [...prevSections, newSectionFromServer]);
+         setSections((prev) => {
+        const updatedSections = prev.map((s) =>
+          s._id === sectionId ? { ...s, backgroundImage: newImageUrl } : s
+        );
+        console.log('Sections updated in UI state with new image URL.');
+        return updatedSections;
+      });
 
       const imageRes = await fetch(`/api/uploadOurProposImage?id=${newSectionId}`, {
         method: 'POST',
@@ -61,7 +67,7 @@ export default function AdminProposPage() {
       });
 
       const imageData = await imageRes.json();
-      const imageUrl = imageData?.imageUrl?.url;
+     const imageUrl = imageData?.imageUrl;
 
       await fetch('/api/ourPropos', {
         method: 'PUT',
@@ -85,6 +91,76 @@ export default function AdminProposPage() {
       console.error('Ошибка при добавлении секции:', err);
     } finally {
       setIsUploading(false);
+    }
+  };
+
+  const handleImageChange = async (e, sectionId) => {
+    const selectedFile = e.target.files?.[0];
+    if (!selectedFile) {
+      console.log('No file selected.');
+      return;
+    }
+
+    setUploadingSections((prev) => ({ ...prev, [sectionId]: true }));
+    console.log(`Starting image upload for sectionId: ${sectionId}`);
+
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+
+    try {
+      console.log('Sending POST request to /api/uploadOurProposImage');
+      const res = await fetch(`/api/uploadOurProposImage?id=${sectionId}`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error('Image upload API responded with error:', res.status, errorText);
+        throw new Error(`Image upload failed: ${res.status} ${errorText}`);
+      }
+
+      const data = await res.json();
+      console.log('Response from /api/uploadOurProposImage:', data);
+
+     const newImageUrl = data?.imageUrl;
+      if (!newImageUrl || typeof newImageUrl !== 'string') {
+        console.error('Invalid image URL received from API:', newImageUrl);
+        throw new Error('Received invalid image URL from server.');
+      }
+      console.log('New image URL from Cloudinary:', newImageUrl);
+
+      console.log('Sending PUT request to /api/ourPropos to update backgroundImage');
+      const putRes = await fetch('/api/ourPropos', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: sectionId,
+          backgroundImage: newImageUrl, 
+        }),
+      });
+
+      if (!putRes.ok) {
+        const errorText = await putRes.text();
+        console.error('PUT /api/ourPropos responded with error:', putRes.status, errorText);
+        throw new Error(`Failed to update section with new image: ${putRes.status} ${errorText}`);
+      }
+      console.log('PUT /api/ourPropos successful.');
+
+
+      setSections((prev) => {
+        const updatedSections = prev.map((s) =>
+          s._id === sectionId ? { ...s, backgroundImage: newImageUrl } : s
+        );
+        console.log('Sections updated in UI state with new image URL.');
+        return updatedSections;
+      });
+
+    } catch (err) {
+      console.error('Ошибка при обработке изменения изображения:', err);
+    } finally {
+      setUploadingSections((prev) => ({ ...prev, [sectionId]: false }));
+      console.log(`Image upload process finished for sectionId: ${sectionId}`);
     }
   };
 
@@ -219,13 +295,32 @@ export default function AdminProposPage() {
                         className="text-sm w-full mt-1 bg-transparent border-b border-white focus:outline-none"
                         rows={3}
                       />
+
                       {section.backgroundImage && (
-                        <img
-                          src={section.backgroundImage} // ✅ Используем backgroundImage
-                          alt="Секция"
-                          className="mt-2 border max-h-60"
-                        />
+                        <div className="mt-2 relative">
+                          <img
+                            src={section.backgroundImage}
+                            alt="Секция"
+                            className="border max-h-60 w-full object-cover"
+                          />
+                          {uploadingSections[section._id] && (
+                            <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white text-sm">
+                              Загрузка...
+                            </div>
+                          )}
+                        </div>
                       )}
+
+                      <label className="block mt-2 cursor-pointer text-sm underline">
+                        Изменить фото
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleImageChange(e, section._id)}
+                          className="hidden"
+                        />
+                      </label>
+
                       <button
                         onClick={() => handleDelete(index)}
                         className="mt-2 bg-red-600 text-white px-2 py-1 rounded"

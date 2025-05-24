@@ -1,7 +1,7 @@
 import { v2 as cloudinary } from 'cloudinary';
 import formidable from 'formidable';
 import dbConnect from '../../utils/dbConnect';
-import OurPropos from '../../models/OurPropos'; // ✅ Импортируем модель OurPropos
+import OurPropos from '../../models/OurPropos'; 
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_NAME,
@@ -53,7 +53,7 @@ export default async function handler(req, res) {
           await dbConnect();
 
           const result = await cloudinary.uploader.upload(filepath, {
-            folder: 'our-propos', // Изменена папка для соответствия разделу
+            folder: 'our-propos',
             use_filename: true,
             unique_filename: false,
             overwrite: true,
