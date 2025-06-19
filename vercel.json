@@ -1,0 +1,9 @@
+{
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "destination":            "https://crystal-studio-nails.vercel.app/",
+      "permanent": true
+    }
+  ]
+}
