@@ -2,12 +2,12 @@
   "redirects": [
     {
       "source": "/admin",
-      "destination": "https://crystal-studio-nails.vercel.app/admin/footer",
+      "destination": "https://crystal-studio-nails.vercel.app/admin",
       "permanent": true
     },
     {
       "source": "/(.*)",
-      "destination": "https://crystal-studio-nails.vercel.app/$1",
+      "destination": "https://crystal-studio-nails.vercel.app",
       "permanent": true
     }
   ]
